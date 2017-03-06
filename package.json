@@ -1,0 +1,34 @@
+{
+  "name": "dva-generator",
+  "version": "0.0.1",
+  "description": "基于react的dva代码生成器",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jnotnull/reactGenerator.git"
+  },
+  "keywords": [
+    "react",
+    "generator"
+  ],
+  "author": "jnotnull",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jnotnull/reactGenerator/issues"
+  },
+  "homepage": "https://github.com/jnotnull/reactGenerator#readme",
+  "dependencies": {
+    "camelcase": "^4.0.0",
+    "capitalize": "^1.0.0",
+    "dot": "^1.1.1",
+    "minimist": "^1.2.0",
+    "reserved-words": "^0.1.1"
+  },
+  "bin": {
+    "generate-dva": "./index.js"
+  }
+}
