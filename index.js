@@ -125,5 +125,5 @@ function mkdirp(filepath, fileName) {
 }
 
 function displayHelp() {
-  console.log('Usage: generate-dva [name] -p');
+  console.log('Usage: generate-dva [name]');
 }
