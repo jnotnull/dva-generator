@@ -1,5 +1,5 @@
 import pathToRegexp from 'path-to-regexp';
-import {getbotlist, setstatus} from '../proxy/{{=it.id}}';
+import {test} from '../proxy/{{=it.id}}';
 
 export default {
   namespace: '{{=it.id}}',
