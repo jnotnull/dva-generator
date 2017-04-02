@@ -26,6 +26,7 @@
     "capitalize": "^1.0.0",
     "dot": "^1.1.1",
     "minimist": "^1.2.0",
+    "perfect-fetch": "^1.0.5",
     "reserved-words": "^0.1.1"
   },
   "bin": {
