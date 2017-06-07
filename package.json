@@ -1,7 +1,7 @@
 {
-  "name": "mongdbddl2model",
-  "version": "0.0.1",
-  "description": "mongdb ddl2model",
+  "name": "dva-generator",
+  "version": "0.1.1",
+  "description": "基于react的dva代码生成器",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,18 +9,27 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jnotnull/mongdbddl2model.git"
+    "url": "git+https://github.com/jnotnull/dva-generator.git"
   },
   "keywords": [
-    "mongdb",
-    "ddl2model"
+    "react",
+    "generator"
   ],
   "author": "jnotnull",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jnotnull/mongdbddl2model/issues"
+    "url": "https://github.com/jnotnull/dva-generator/issues"
   },
-  "homepage": "https://github.com/jnotnull/mongdbddl2model#readme",
+  "homepage": "https://github.com/jnotnull/dva-generator#readme",
   "dependencies": {
+    "camelcase": "^4.0.0",
+    "capitalize": "^1.0.0",
+    "dot": "^1.1.1",
+    "minimist": "^1.2.0",
+    "perfect-fetch": "^1.0.5",
+    "reserved-words": "^0.1.1"
+  },
+  "bin": {
+    "generate-dva": "./index.js"
   }
 }

@@ -1,60 +1,129 @@
-let text = `CREATE TABLE comm.t_sys_user_svc_bot (
-	row_id uuid NOT NULL DEFAULT uuid_generate_v1(),
-	client_id int4,
-	user_wechat_id varchar(30),
-	bot_wechat_id varchar(30),
-	created_time timestamp,
-	created_by varchar(32),
-	updated_time timestamp,
-	updated_by varchar(32),
-	modification_num int4,
-	"type" varchar(30),
-	CONSTRAINT t_sys_user_svc_bot_pkey PRIMARY KEY (row_id)
-);
-`
+#!/usr/bin/env node
+'use strict';
 
-String.prototype.trim = function () { return this.replace(/(^\s*)|(\s*$)/g, ""); }
+const fs = require('fs');
+const path = require('path');
+const doT = require('dot');
+const minimist = require('minimist');
+const camelCase = require('camelcase');
+const capitalize = require('capitalize');
+const reserved = require('reserved-words');
 
-let data = text.split("\n");
+const templatesDir = path.join(__dirname, 'templates');
+const config = getConfigFromArgs(process.argv.slice(2));
 
-let result = {};
+if (!validateConfig(config)) {
+  displayHelp();
+  return;
+}
 
-for (let i = 0; i< data.length; i++){
-  if (!data[i]) {
-    continue;
-  }
+formatConfig(config);
 
-  let temp = data[i].trim();
-  let field = temp.split(" ")[0];
-  field = field.replace(/\"/g, '');
+for (let temp of config.templates) {
+  loadTemplate(config, temp.name)
+  .then(template => {
+    let source = interpolateTemplate(config, template);
+    let fileName = config.id + '.' + temp.name.split('.')[1];
+    let path = temp.path;
+    return saveSource(path, fileName, source);
+  })
+  .then(outputFileName => {
+    console.log('Created file: ' + outputFileName);
+  })
+  .catch(error => {
+    console.log(error);
+  });
+}
 
-  if (temp.indexOf('uuid') > -1) {
-    if (temp.indexOf('uuid_generate_v1') > -1) {
-      result[field] = {
-        type: "Sequelize.UUID",
-        primaryKey: true,
-        defaultValue: "Sequelize.DataTypes.UUIDV4"
-      }
-    } else {
-      result[field] = {
-        type: "Sequelize.UUID"
-      }
-    }
-  } else if (temp.indexOf('int4') > -1 || temp.indexOf('int2') > -1) {
-    result[field] = {
-      type: "Sequelize.INTEGER"
-    }
-  } else if (temp.indexOf('varchar') > -1) {
-    result[field] = {
-      type: "Sequelize.STRING"
-    }
-  } else if (temp.indexOf('date') > -1 || temp.indexOf('timestamp') > -1) {
-    result[field] = {
-      type: "Sequelize.DATE"
-    }
+function getConfigFromArgs(argv) {
+
+  let parsedArgs = minimist(argv, {
+    boolean: 'presentation',
+    alias: {h: 'help', presentation: 'p'}
+  });
+
+  return {
+    name: parsedArgs._[0]
   }
 }
 
-let tempresult = JSON.stringify(result);
-tempresult = tempresult.replace(/\"/g, "")
-console.log(tempresult);
+function validateConfig(config) {
+  if (!config.name) {
+    console.log('No component name provided!');
+    return false;
+  }
+  if (reserved.check(config.name, 'es2015')) {
+    console.log('You have entered a reserved ES6 keyword as a component name!');
+    return false;
+  }
+
+  return true;
+}
+
+function formatConfig(config) {
+  config.name = capitalize(camelCase(config.name));
+  config.id = camelCase(config.name);
+  config.templates = [
+    {name: 'dva.js', path: 'models/'}, 
+    {name: 'routes.js', path: 'routes/'},
+    {name: 'routes.less', path: 'routes/'},
+    {name: 'proxy.js', path: 'proxy/'},
+  ];
+}
+
+function loadTemplate(config, templatename) {
+  return new Promise((resolve, reject) => {
+    const templateFileName = getTemplateFileName(templatename);
+    fs.readFile(path.join(templatesDir, templateFileName), 'utf8', function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  })
+}
+
+function getTemplateFileName(templatename) {
+  return templatename;
+}
+
+function interpolateTemplate(config, templateSource) {
+  doT.templateSettings.strip = false;
+  let template = doT.template(templateSource);
+  return template(config);
+}
+
+function saveSource(path, fileName, source) {
+  if (fs.existsSync(path + fileName)) {
+    return false;
+  }
+  
+  mkdirp(path, fileName);
+
+  return new Promise((resolve, reject) => {
+    fs.writeFile(path + fileName, source, function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(path + fileName);
+      }
+    })
+  });
+}
+
+function mkdirp(filepath, fileName) {
+
+    var dirname = path.dirname(filepath);
+    if (!fs.existsSync(dirname)) {
+        mkdirp(dirname);
+    }
+
+    if (!fs.existsSync(filepath)) {
+        fs.mkdirSync(filepath);
+    }
+}
+
+function displayHelp() {
+  console.log('Usage: generate-dva [name]');
+}
